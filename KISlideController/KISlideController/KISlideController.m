@@ -11,6 +11,7 @@
 #define kLeftViewOffseRate 0.3
 
 @interface KISlideContentView : UIView
+@property (nonatomic, strong) UIView *maskView;
 @property (nonatomic, assign) UIView *contentView;
 @end
 
@@ -18,12 +19,23 @@
 
 - (void)addSubview:(UIView *)view {
     [super addSubview:view];
+    [super addSubview:self.maskView];
     self.contentView = view;
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
     [self.contentView setFrame:self.bounds];
+    [self.maskView setFrame:self.bounds];
+    [self bringSubviewToFront:self.maskView];
+}
+
+- (UIView *)maskView {
+    if (_maskView == nil) {
+        _maskView = [[UIView alloc] init];
+        [_maskView setBackgroundColor:[UIColor clearColor]];
+    }
+    return _maskView;
 }
 @end
 
@@ -40,6 +52,7 @@
 @property (nonatomic, strong) KISlideContentView *leftView;
 @property (nonatomic, strong) KISlideContentView *mainView;
 
+@property (nonatomic, strong) UITapGestureRecognizer           *tapGestureRecognizer;
 @property (nonatomic, strong) UIPanGestureRecognizer           *panGestureRecognizer;
 @property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *screenEdgePanGestureRecognizer;
 
@@ -50,12 +63,12 @@
 #pragma makr Lifecycle
 - (void)awakeFromNib {
     [super awakeFromNib];
-    [self setup];
+    [self setupViews];
 }
 
 - (void)loadView {
     [super loadView];
-    [self setup];
+    [self setupViews];
 }
 
 - (void)viewDidLoad {
@@ -103,16 +116,20 @@
 }
 
 #pragma mark UIGestureRecognizerDelegate
-- (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)gestureRecognizer {
-    CGPoint velocity = [gestureRecognizer velocityInView:self.view];
-    
-    if (velocity.x > 0 ) {
-        if (self.delegate != nil && [self.delegate respondsToSelector:@selector(willOpenSlideController:)]) {
-            return [self.delegate willOpenSlideController:self];
-        }
-    } else {
-        if (self.delegate != nil && [self.delegate respondsToSelector:@selector(willCloseSlideController:)]) {
-            return [self.delegate willCloseSlideController:self];
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer == self.tapGestureRecognizer) {
+        return (self.status == KISlideControllerStatusOfOpen);
+    } else if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]){
+        UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *)gestureRecognizer;
+        CGPoint velocity = [pan velocityInView:self.view];
+        if (velocity.x > 0 ) {
+            if (self.delegate != nil && [self.delegate respondsToSelector:@selector(willOpenSlideController:)]) {
+                return [self.delegate willOpenSlideController:self];
+            }
+        } else {
+            if (self.delegate != nil && [self.delegate respondsToSelector:@selector(willCloseSlideController:)]) {
+                return [self.delegate willCloseSlideController:self];
+            }
         }
     }
     return YES;
@@ -127,6 +144,12 @@
 }
 
 #pragma mark Event response
+- (void)tapGestureRecognizerHandler:(UITapGestureRecognizer *)handler {
+    if (handler.state == UIGestureRecognizerStateEnded) {
+        [self closeSlideView];
+    }
+}
+
 - (void)panGestureRecognizerHandler:(UIPanGestureRecognizer *)handler {
     CGPoint velocity = [handler velocityInView:self.view];
     CGPoint point = [handler translationInView:self.view];
@@ -218,26 +241,18 @@
 }
 
 #pragma mark Methods
-- (void)setup {
-    self.leftView = [[KISlideContentView alloc] init];
-    [self.leftView setBackgroundColor:[UIColor clearColor]];
-    [self.leftView setUserInteractionEnabled:YES];
+- (void)setupViews {
     [self.view addSubview:self.leftView];
-    
-    self.maskView = [[UIView alloc] init];
-    [self.maskView setBackgroundColor:[UIColor blackColor]];
-    [self.maskView setUserInteractionEnabled:NO];
-    [self.maskView setAlpha:1.0];
     [self.view addSubview:self.maskView];
-    
-    self.mainView = [[KISlideContentView alloc] init];
-    [self.mainView setBackgroundColor:[UIColor clearColor]];
-    [self.mainView setUserInteractionEnabled:YES];
     [self.view addSubview:self.mainView];
     
+    [self.mainView addGestureRecognizer:self.tapGestureRecognizer];
     [self.mainView addGestureRecognizer:self.panGestureRecognizer];
     [self.mainView addGestureRecognizer:self.screenEdgePanGestureRecognizer];
+    [self.tapGestureRecognizer requireGestureRecognizerToFail:self.panGestureRecognizer];
     [self.panGestureRecognizer requireGestureRecognizerToFail:self.screenEdgePanGestureRecognizer];
+    
+    [self updateStatus:KISlideControllerStatusOfClose];
 }
 
 - (void)setMainViewController:(UIViewController *)mainViewController
@@ -368,9 +383,40 @@
             [self didCloseLeftViewController];
         }
     }
+    
+    [self.mainView.maskView setHidden:status==KISlideControllerStatusOfClose];
 }
 
 #pragma mark Getters and Setters
+- (UIView *)maskView {
+    if (_maskView == nil) {
+        _maskView = [[UIView alloc] init];
+        [_maskView setBackgroundColor:[UIColor blackColor]];
+        [_maskView setUserInteractionEnabled:NO];
+        [_maskView setAlpha:1.0];
+    }
+    return _maskView;
+}
+
+- (KISlideContentView *)leftView {
+    if (_leftView == nil) {
+        _leftView = [[KISlideContentView alloc] init];
+        [_leftView setBackgroundColor:[UIColor clearColor]];
+        [_leftView setUserInteractionEnabled:YES];
+        [_leftView.maskView setHidden:YES];
+    }
+    return _leftView;
+}
+
+- (KISlideContentView *)mainView {
+    if (_mainView == nil) {
+        _mainView = [[KISlideContentView alloc] init];
+        [_mainView setBackgroundColor:[UIColor clearColor]];
+        [_mainView setUserInteractionEnabled:YES];
+    }
+    return _mainView;
+}
+
 - (CGRect)viewBounds {
     return self.view.bounds;
 }
@@ -387,6 +433,19 @@
         _contentScale = 0.8;
     }
     return _contentScale;
+}
+
+- (UITapGestureRecognizer *)tapGestureRecognizer {
+    if (_tapGestureRecognizer == nil) {
+        _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                        action:@selector(tapGestureRecognizerHandler:)];
+        [_tapGestureRecognizer setDelegate:self];
+        [_tapGestureRecognizer setCancelsTouchesInView:YES];
+        [_tapGestureRecognizer setNumberOfTapsRequired:1];
+        [_tapGestureRecognizer setNumberOfTouchesRequired:1];
+        
+    }
+    return _tapGestureRecognizer;
 }
 
 - (UIPanGestureRecognizer *)panGestureRecognizer {
