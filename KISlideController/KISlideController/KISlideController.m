@@ -54,7 +54,7 @@
 
 @property (nonatomic, strong) UITapGestureRecognizer           *tapGestureRecognizer;
 @property (nonatomic, strong) UIPanGestureRecognizer           *panGestureRecognizer;
-@property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *screenEdgePanGestureRecognizer;
+//@property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *screenEdgePanGestureRecognizer;
 
 @end
 
@@ -125,9 +125,15 @@
         if ((CGRectGetWidth(self.viewBounds) - self.slideViewWidth) < point.x) {
             return NO;
         }
-
+        
         UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *)gestureRecognizer;
         CGPoint velocity = [pan velocityInView:self.view];
+        
+        //检测速率，如果竖向滑动的速率大于横向滑动的速率，则不响应侧滑手势
+        if (ABS(velocity.y) > ABS(velocity.x) * 0.5) {
+            return NO;
+        }
+        
         if (velocity.x > 0 ) {
             if (self.delegate != nil && [self.delegate respondsToSelector:@selector(willOpenSlideController:)]) {
                 return [self.delegate willOpenSlideController:self];
@@ -255,9 +261,9 @@
     
     [self.mainView addGestureRecognizer:self.tapGestureRecognizer];
     [self.mainView addGestureRecognizer:self.panGestureRecognizer];
-    [self.mainView addGestureRecognizer:self.screenEdgePanGestureRecognizer];
+//    [self.mainView addGestureRecognizer:self.screenEdgePanGestureRecognizer];
     [self.tapGestureRecognizer requireGestureRecognizerToFail:self.panGestureRecognizer];
-    [self.panGestureRecognizer requireGestureRecognizerToFail:self.screenEdgePanGestureRecognizer];
+//    [self.panGestureRecognizer requireGestureRecognizerToFail:self.screenEdgePanGestureRecognizer];
     
     [self updateStatus:KISlideControllerStatusOfClose];
 }
@@ -465,16 +471,16 @@
     return _panGestureRecognizer;
 }
 
-- (UIScreenEdgePanGestureRecognizer *)screenEdgePanGestureRecognizer {
-    if (_screenEdgePanGestureRecognizer == nil) {
-        _screenEdgePanGestureRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self
-                                                                                            action:@selector(panGestureRecognizerHandler:)];
-        [_screenEdgePanGestureRecognizer setDelegate:self];
-        [_screenEdgePanGestureRecognizer setEdges:UIRectEdgeLeft];
-        [_screenEdgePanGestureRecognizer setCancelsTouchesInView:YES];
-    }
-    return _screenEdgePanGestureRecognizer;
-}
+//- (UIScreenEdgePanGestureRecognizer *)screenEdgePanGestureRecognizer {
+//    if (_screenEdgePanGestureRecognizer == nil) {
+//        _screenEdgePanGestureRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self
+//                                                                                            action:@selector(panGestureRecognizerHandler:)];
+//        [_screenEdgePanGestureRecognizer setDelegate:self];
+//        [_screenEdgePanGestureRecognizer setEdges:UIRectEdgeLeft];
+//        [_screenEdgePanGestureRecognizer setCancelsTouchesInView:YES];
+//    }
+//    return _screenEdgePanGestureRecognizer;
+//}
 
 - (KISlideControllerStatus)status {
     return _status;
