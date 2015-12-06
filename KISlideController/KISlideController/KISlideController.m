@@ -119,7 +119,13 @@
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer {
     if (gestureRecognizer == self.tapGestureRecognizer) {
         return (self.status == KISlideControllerStatusOfOpen);
-    } else if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]){
+    } else if ([gestureRecognizer isMemberOfClass:[UIPanGestureRecognizer class]]){
+        //此处是为了避免整个View都响应滑动事件
+        CGPoint point = [gestureRecognizer locationInView:self.mainView];
+        if ((CGRectGetWidth(self.viewBounds) - self.slideViewWidth) < point.x) {
+            return NO;
+        }
+
         UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *)gestureRecognizer;
         CGPoint velocity = [pan velocityInView:self.view];
         if (velocity.x > 0 ) {
@@ -136,8 +142,9 @@
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    //此处是为避免和有横向滑动手势的View发生冲突，比如横向滑动UIScrollView。
     CGPoint point = [gestureRecognizer locationInView:self.mainView];
-    if ((CGRectGetWidth(self.viewBounds) - self.slideViewWidth) / 3 > point.x) {
+    if ((CGRectGetWidth(self.viewBounds) - self.slideViewWidth) / 2 > point.x) {
         return YES;
     }
     return NO;

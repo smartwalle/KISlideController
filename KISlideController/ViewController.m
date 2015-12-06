@@ -18,6 +18,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor greenColor]];
+    
+    UIScrollView *sv = [[UIScrollView alloc] initWithFrame:self.view.bounds];
+    [sv setContentSize:CGSizeMake(10000, self.view.bounds.size.height)];
+    [self.view addSubview:sv];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
