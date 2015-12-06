@@ -7,9 +7,9 @@
 //
 
 #import "MainViewController.h"
+#import "KISlideController.h"
 
 @interface MainViewController ()
-
 @end
 
 @implementation MainViewController
@@ -17,6 +17,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor redColor]];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "KISlideController.h"
 
-@interface LeftViewController : UIViewController <KISlideControllerDelegate>
+@interface LeftViewController : UITableViewController <KISlideControllerDelegate>
 
 @end

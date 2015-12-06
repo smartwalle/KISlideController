@@ -40,7 +40,9 @@
 @property (nonatomic, strong) KISlideContentView *leftView;
 @property (nonatomic, strong) KISlideContentView *mainView;
 
-@property (nonatomic, strong) UIPanGestureRecognizer *panGestureRecognizer;
+@property (nonatomic, strong) UIPanGestureRecognizer           *panGestureRecognizer;
+@property (nonatomic, strong) UIScreenEdgePanGestureRecognizer *screenEdgePanGestureRecognizer;
+
 @end
 
 @implementation KISlideController
@@ -89,6 +91,14 @@
         }
     }
     return YES;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    CGPoint point = [gestureRecognizer locationInView:self.mainView];
+    if ((CGRectGetWidth(self.viewBounds) - self.slideViewWidth) / 3 > point.x) {
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark Event response
@@ -201,6 +211,8 @@
     [self.view addSubview:self.mainView];
     
     [self.mainView addGestureRecognizer:self.panGestureRecognizer];
+    [self.mainView addGestureRecognizer:self.screenEdgePanGestureRecognizer];
+    [self.panGestureRecognizer requireGestureRecognizerToFail:self.screenEdgePanGestureRecognizer];
 }
 
 - (void)setMainViewController:(UIViewController *)mainViewController
@@ -350,6 +362,17 @@
         [_panGestureRecognizer setCancelsTouchesInView:YES];
     }
     return _panGestureRecognizer;
+}
+
+- (UIScreenEdgePanGestureRecognizer *)screenEdgePanGestureRecognizer {
+    if (_screenEdgePanGestureRecognizer == nil) {
+        _screenEdgePanGestureRecognizer = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self
+                                                                                            action:@selector(panGestureRecognizerHandler:)];
+        [_screenEdgePanGestureRecognizer setDelegate:self];
+        [_screenEdgePanGestureRecognizer setEdges:UIRectEdgeLeft];
+        [_screenEdgePanGestureRecognizer setCancelsTouchesInView:YES];
+    }
+    return _screenEdgePanGestureRecognizer;
 }
 
 - (KISlideControllerStatus)status {
