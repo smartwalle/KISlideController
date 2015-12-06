@@ -20,7 +20,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    [self.window setBackgroundColor:[UIColor whiteColor]];
+    [self.window setBackgroundColor:[UIColor blueColor]];
 
     LeftViewController *left = [[LeftViewController alloc] init];
     MainViewController *main = [[MainViewController alloc] init];
@@ -29,7 +29,6 @@
     [slide setMainViewController:main leftViewController:left];
     
     [self.window setRootViewController:slide];
-    
     
     [self.window makeKeyAndVisible];
     return YES;

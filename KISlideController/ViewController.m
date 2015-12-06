@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "KISlideController.h"
 
 @interface ViewController ()
 
@@ -16,12 +17,30 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    [self.view setBackgroundColor:[UIColor greenColor]];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 10;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 60;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *MENU_CELL = @"MENU_CELL";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MENU_CELL];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MENU_CELL];
+    }
+    [cell setBackgroundColor:[UIColor greenColor]];
+    [cell.textLabel setText:[NSString stringWithFormat:@"Main2 %d", indexPath.row]];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self.slideController openSlideView];
 }
 
 @end

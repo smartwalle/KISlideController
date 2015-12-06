@@ -7,6 +7,8 @@
 //
 
 #import "LeftViewController.h"
+#import "MainViewController.h"
+#import "ViewController.h"
 
 @interface LeftViewController ()
 
@@ -40,14 +42,34 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return 10;
 }
-*/
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 60;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *MENU_CELL = @"MENU_CELL";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MENU_CELL];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MENU_CELL];
+    }
+    [cell.textLabel setText:[NSString stringWithFormat:@"Menu %d", indexPath.row]];
+    return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UIViewController *vc = nil;
+    if (indexPath.row % 2 == 0) {
+        vc = [[ViewController alloc] init];
+    } else {
+        vc = [[MainViewController alloc] init];
+    }
+    [self.slideController setMainViewController:vc];
+    [self.slideController closeSlideView];
+}
 
 @end

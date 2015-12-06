@@ -77,6 +77,31 @@
     [self.leftView setFrame:self.view.bounds];
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return [self.mainViewController prefersStatusBarHidden];
+}
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
+    return [self.mainViewController shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
+}
+
+- (BOOL)shouldAutorotate {
+    return [self.mainViewController shouldAutorotate];
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return [self.mainViewController supportedInterfaceOrientations];
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return [self.mainViewController preferredInterfaceOrientationForPresentation];
+}
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+    [self.view setFrame:self.view.superview.bounds];
+    [self rotationViewController];
+}
+
 #pragma mark UIGestureRecognizerDelegate
 - (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)gestureRecognizer {
     CGPoint velocity = [gestureRecognizer velocityInView:self.view];
@@ -159,10 +184,10 @@
         [handler setTranslation:CGPointZero inView:self.view];
     } else {
         if (minX < 0) {
-            [self closeLeftView];
+            [self closeSlideView];
             self.offsetX = 0;
         } else if (minX > self.slideViewWidth) {
-            [self openLeftView];
+            [self openSlideView];
             self.offsetX = 0;
         }
         return;
@@ -171,21 +196,21 @@
     if (handler.state == UIGestureRecognizerStateEnded) {
         if (fabs(self.offsetX) > self.slideViewWidth * kLeftViewOffseRate) {
             if (self.status == KISlideControllerStatusOfOpen) {
-                [self closeLeftView];
+                [self closeSlideView];
             } else {
-                [self openLeftView];
+                [self openSlideView];
             }
         } else if (fabs(velocity.x) >= 800) {
             if (self.status == KISlideControllerStatusOfOpen && velocity.x < 0) {
-                [self closeLeftView];
+                [self closeSlideView];
             } else if (velocity.x > 0) {
-                [self openLeftView];
+                [self openSlideView];
             }
         } else {
             if (self.status == KISlideControllerStatusOfOpen) {
-                [self openLeftView];
+                [self openSlideView];
             } else {
-                [self closeLeftView];
+                [self closeSlideView];
             }
         }
         self.offsetX = 0;
@@ -271,7 +296,7 @@
     return progress;
 }
 
-- (void)closeLeftView {
+- (void)closeSlideView {
     [UIView animateWithDuration:0.2
                           delay:0
                         options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveLinear
@@ -291,7 +316,7 @@
                      }];
 }
 
-- (void)openLeftView {
+- (void)openSlideView {
     [UIView animateWithDuration:0.2
                           delay:0
                         options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveLinear
@@ -309,6 +334,16 @@
                              [self updateStatus:KISlideControllerStatusOfOpen];
                          }
                      }];
+}
+
+- (void)rotationViewController {
+    self.mainView.transform = CGAffineTransformIdentity;
+    self.leftView.transform = CGAffineTransformIdentity;
+    [self.leftView setFrame:self.viewBounds];
+    [self.maskView setFrame:self.viewBounds];
+    [self.mainView setFrame:self.viewBounds];
+    
+    [self updateStatus:KISlideControllerStatusOfClose];
 }
 
 - (void)didOpenLeftViewController {
@@ -342,7 +377,7 @@
 
 - (CGFloat)slideViewWidth {
     if (_slideViewWidth <= 0.001) {
-        _slideViewWidth = CGRectGetWidth(self.viewBounds) * (1 - kLeftViewOffseRate);
+        return CGRectGetWidth(self.viewBounds) * (1 - kLeftViewOffseRate);
     }
     return _slideViewWidth;
 }

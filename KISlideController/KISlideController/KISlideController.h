@@ -45,9 +45,9 @@ typedef NS_ENUM(int, KISlideControllerStatus) {
 
 - (UIViewController *)leftViewController;
 
-- (void)closeLeftView;
+- (void)closeSlideView;
 
-- (void)openLeftView;
+- (void)openSlideView;
 
 @end
 
