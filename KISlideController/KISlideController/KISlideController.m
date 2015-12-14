@@ -276,8 +276,8 @@
 
 - (void)updateLeftViewController:(UIViewController *)viewController {
     if (viewController != nil && [self isViewLoaded]) {
-        [self.leftView addSubview:viewController.view];
         [self addChildViewController:viewController];
+        [self.leftView addSubview:viewController.view];
     }
 }
 
@@ -295,8 +295,8 @@
 
 - (void)updateMainViewController:(UIViewController *)viewController {
     if (viewController != nil && [self isViewLoaded]) {
-        [self.mainView addSubview:viewController.view];
         [self addChildViewController:viewController];
+        [self.mainView addSubview:viewController.view];
     }
 }
 
@@ -491,7 +491,7 @@
 
 - (KISlideController *)slideController {
     UIViewController *parentController = self.parentViewController;
-    if ([parentController isMemberOfClass:[KISlideController class]]) {
+    if ([parentController isKindOfClass:[KISlideController class]]) {
         return (KISlideController *)parentController;
     }
     if (parentController != nil) {
