@@ -30,6 +30,9 @@ typedef NS_ENUM(int, KISlideControllerStatus) {
 @property (nonatomic, strong) UIViewController *mainViewController;
 @property (nonatomic, strong) UIViewController *leftViewController;
 
+@property (nonatomic, copy) UIColor *mainViewMaskColor;
+@property (nonatomic, copy) UIColor *leftViewMaskColor;
+
 //即left view展开后的宽度
 @property (nonatomic, assign) CGFloat slideViewWidth;
 

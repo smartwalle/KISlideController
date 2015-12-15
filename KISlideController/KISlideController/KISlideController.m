@@ -37,6 +37,11 @@
     }
     return _maskView;
 }
+
+- (void)setAlpha:(CGFloat)alpha {
+    [self.maskView setAlpha:alpha];
+}
+
 @end
 
 @interface KISlideController () <UIGestureRecognizerDelegate>
@@ -73,6 +78,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    [self setLeftViewMaskColor:[[UIColor blackColor] colorWithAlphaComponent:0.8]];
+    [self setMainViewMaskColor:[[UIColor blackColor] colorWithAlphaComponent:0.6]];
     
     [self updateLeftViewController:self.leftViewController];
     [self updateMainViewController:self.mainViewController];
@@ -174,6 +182,10 @@
         [self.view sendSubviewToBack:self.leftView];
         [self.view bringSubviewToFront:self.mainView];
         [self.maskView setFrame:self.viewBounds];
+        
+        [self.maskView setBackgroundColor:self.leftViewMaskColor];
+        [self.mainView.maskView setBackgroundColor:self.mainViewMaskColor];
+        [self.mainView.maskView setHidden:NO];
     }
     
     CGFloat minX = CGRectGetMinX(self.mainView.frame);
@@ -208,6 +220,7 @@
         
         //改变mask view的透明度
         [self.maskView setAlpha:1 - progress];
+        [self.mainView setAlpha:progress];
         
         //改变main view 的scale
         CGFloat mainViewScale = 1.0 - progress * (1.0 - self.contentScale);
@@ -281,34 +294,11 @@
     }
 }
 
-- (void)setLeftViewController:(UIViewController *)leftViewController {
-    if (_leftViewController != leftViewController) {
-        if ([self isViewLoaded]) {
-            [_leftViewController.view removeFromSuperview];
-            [_leftViewController removeFromParentViewController];
-        }
-    }
-    _leftViewController = leftViewController;
-    [self setDelegate:(id)_leftViewController];
-    [self updateLeftViewController:_leftViewController];
-}
-
 - (void)updateMainViewController:(UIViewController *)viewController {
     if (viewController != nil && [self isViewLoaded]) {
         [self addChildViewController:viewController];
         [self.mainView addSubview:viewController.view];
     }
-}
-
-- (void)setMainViewController:(UIViewController *)mainViewController {
-    if (_mainViewController != mainViewController) {
-        if ([self isViewLoaded]) {
-            [_mainViewController.view removeFromSuperview];
-            [_mainViewController removeFromParentViewController];
-        }
-    }
-    _mainViewController = mainViewController;
-    [self updateMainViewController:_mainViewController];
 }
 
 - (void)updateMainViewScale:(CGFloat)scale {
@@ -337,6 +327,7 @@
                          [self updateMainViewScale:1.0];
                          [self updateLeftViewScale:self.contentScale];
                          [self.maskView setAlpha:1.0];
+                         [self.mainView setAlpha:0.0];
                      } completion:^(BOOL finished) {
                          if (finished) {
                              [self updateStatus:KISlideControllerStatusOfClose];
@@ -357,6 +348,7 @@
                          [self updateMainViewScale:self.contentScale];
                          [self updateLeftViewScale:1.0];
                          [self.maskView setAlpha:0.0];
+                         [self.mainView setAlpha:1.0];
                      } completion:^(BOOL finished) {
                          if (finished) {
                              [self updateStatus:KISlideControllerStatusOfOpen];
@@ -434,11 +426,49 @@
     return self.view.bounds;
 }
 
+- (void)setLeftViewController:(UIViewController *)leftViewController {
+    if (_leftViewController != leftViewController) {
+        if ([self isViewLoaded]) {
+            [_leftViewController.view removeFromSuperview];
+            [_leftViewController removeFromParentViewController];
+        }
+    }
+    _leftViewController = leftViewController;
+    [self setDelegate:(id)_leftViewController];
+    [self updateLeftViewController:_leftViewController];
+}
+
+
+- (void)setMainViewController:(UIViewController *)mainViewController {
+    if (_mainViewController != mainViewController) {
+        if ([self isViewLoaded]) {
+            [_mainViewController.view removeFromSuperview];
+            [_mainViewController removeFromParentViewController];
+        }
+    }
+    _mainViewController = mainViewController;
+    [self updateMainViewController:_mainViewController];
+}
+
 - (CGFloat)slideViewWidth {
     if (_slideViewWidth <= 0.001) {
         return CGRectGetWidth(self.viewBounds) * (1 - kLeftViewOffseRate);
     }
     return _slideViewWidth;
+}
+
+- (void)setLeftViewMaskColor:(UIColor *)leftViewMaskColor {
+    _leftViewMaskColor = [leftViewMaskColor copy];
+    if (_maskView != nil) {
+        [_maskView setBackgroundColor:_leftViewMaskColor];
+    }
+}
+
+- (void)setMainViewMaskColor:(UIColor *)mainViewMaskColor {
+    _mainViewMaskColor = [mainViewMaskColor copy];
+    if (_mainView != nil) {
+        [_mainView.maskView setBackgroundColor:_mainViewMaskColor];
+    }
 }
 
 - (CGFloat)contentScale {
