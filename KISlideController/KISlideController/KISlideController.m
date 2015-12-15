@@ -336,6 +336,7 @@
 }
 
 - (void)openSlideView {
+    [self.mainView.maskView setHidden:NO];
     [UIView animateWithDuration:0.2
                           delay:0
                         options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveLinear
