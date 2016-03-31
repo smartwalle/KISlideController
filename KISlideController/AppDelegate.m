@@ -31,6 +31,7 @@
     [self.window setRootViewController:slide];
     
     [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

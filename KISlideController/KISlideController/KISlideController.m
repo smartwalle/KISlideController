@@ -242,7 +242,7 @@
         return;
     }
     
-    if (handler.state == UIGestureRecognizerStateEnded) {
+    if (handler.state == UIGestureRecognizerStateEnded || handler.state == UIGestureRecognizerStateCancelled || handler.state == UIGestureRecognizerStateFailed) {
         if (fabs(self.offsetX) > self.slideViewWidth * kLeftViewOffseRate) {
             if (self.status == KISlideControllerStatusOfOpen) {
                 [self closeSlideView];
