@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "KISlideController"
-  s.version      = "0.1"
+  s.version      = "0.0.1"
   s.summary      = "KISlideController"
   s.description  = <<-DESC
 					  KISlideController.
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
 
   s.author       = { "SmartWalle" => "smartwalle@gmail.com" }
   s.platform     = :ios, "7.0"
-  s.source       = { :git => "https://github.com/smartwalle/KISlideController.git", :branch => "master" }
+  s.source       = { :git => "https://github.com/smartwalle/KISlideController.git", :tag => "#{s.version}" }
   s.source_files  = "KISlideController/KISlideController/*.{h,m}"
   s.exclude_files = "Classes/Exclude"
   s.requires_arc = true
