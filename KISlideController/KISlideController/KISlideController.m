@@ -157,6 +157,9 @@
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     //此处是为避免和有横向滑动手势的View发生冲突，比如横向滑动UIScrollView。
+    if ([otherGestureRecognizer.view isKindOfClass:[UIScrollView class]]) {
+        [otherGestureRecognizer requireGestureRecognizerToFail:gestureRecognizer];
+    }
     CGPoint point = [gestureRecognizer locationInView:self.mainView];
     if ((CGRectGetWidth(self.viewBounds) - self.slideViewWidth) / 2 > point.x) {
         return YES;
